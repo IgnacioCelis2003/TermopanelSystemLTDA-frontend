@@ -5,18 +5,18 @@
   --font-family-headings: 'Lora', serif;
   --font-family-body: 'Inter', sans-serif;
 
-  /* Paleta Ámbar (default) */
-  --page-bg: #fffbf5;
-  --surface: #fff8ee;
-  --sidebar-bg: #3d2b1a;
-  --sidebar-hover: #4e3826;
-  --nav-text: #f0cfc0;
-  --accent: #d97706;
-  --accent-light: #fde68a;
-  --border-color: #e8d9c0;
-  --text-primary: #2c1f0e;
-  --text-secondary: #6b4c2a;
-  --text-hint: #a07850;
+  /* Paleta Editorial definitiva */
+  --page-bg: #ffffff;
+  --surface: #fcfcfc;
+  --sidebar-bg: #1a1a1a;
+  --sidebar-hover: #333333;
+  --nav-text: #ffffff;
+  --accent: #000000;
+  --accent-light: #e5e5e5;
+  --border-color: #e5e5e5;
+  --text-primary: #000000;
+  --text-secondary: #404040;
+  --text-hint: #737373;
 
   /* Semánticos fijos */
   --success: #059669;

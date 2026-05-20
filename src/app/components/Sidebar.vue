@@ -55,7 +55,7 @@
         <div v-if="!collapsed" class="flex-1 min-w-0">
           <p class="text-sm font-bold truncate" style="color: var(--nav-text);">{{ userName }}</p>
           <p class="text-[11px] uppercase tracking-wider truncate opacity-70" style="color: var(--nav-text);">
-            {{ role === 'admin' ? 'Administrador' : 'Vendedor' }}
+            {{ role === 'admin' ? 'Administrador' : 'Usuario' }}
           </p>
         </div>
       </div>
@@ -91,16 +91,9 @@ import { useSession } from '../state/session';
 const collapsed = ref(false);
 const route = useRoute();
 const router = useRouter();
-const { role, setRole } = useSession();
+const { role, fullName, email, logout } = useSession();
 
-const userName = computed(() => role.value === 'admin' ? 'Alejandro Gonzalez' : 'Ana Vendedora');
-
-const roleValue = computed({
-  get: () => role.value,
-  set: (value) => setRole(value),
-});
-
-const roleBadge = computed(() => (role.value === 'admin' ? 'Admin' : 'Vend'));
+const userName = computed(() => fullName.value || email.value || 'Usuario');
 
 const baseMenuItems = [
   { path: '/historial', icon: FileText, label: 'Historial' },
@@ -141,10 +134,7 @@ const setItemHover = (event: MouseEvent, path: string, isHovering: boolean) => {
 };
 
 const handleLogout = () => {
-  // Opcional: Aquí puedes agregar la lógica para limpiar el estado de la sesión si la tienes
-  // session.setRole(null); 
-  
-  // Redirigir a la vista de login
+  logout();
   router.push('/login');
 };
 </script>

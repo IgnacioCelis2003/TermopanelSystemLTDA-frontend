@@ -105,6 +105,8 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-vue-next';
 import { useSession } from '../state/session';
+import { authService } from '../services/authService';
+import { ApiError } from '../services/api';
 
 const email = ref('');
 const password = ref('');
@@ -125,21 +127,30 @@ const windowClasses = [
   'w-40 h-40 bottom-1/4 left-20 animate-float-delayed'
 ];
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   const e = email.value.trim();
   const p = password.value.trim();
 
-  // Validación de credenciales según requerimiento
-  if (e === 'admin@termopanel.cl' && p === 'admin123') {
-    session.setRole('admin');
-    loggedUserName.value = 'Alejandro Gonzalez'; // Nombre del admin según sidebar
+  errorMessage.value = '';
+
+  try {
+    const response = await authService.login({ email: e, password: p });
+    const sessionLoaded = session.setSessionFromToken(response.token);
+
+    if (!sessionLoaded) {
+      errorMessage.value = 'El token recibido no es válido o ya expiró.';
+      return;
+    }
+
+    loggedUserName.value = session.fullName.value || session.email.value || 'Usuario';
     triggerSuccess();
-  } else if (e === 'vendedor@termopanel.cl' && p === 'vendedor123') {
-    session.setRole('vendedor');
-    loggedUserName.value = 'Ana Vendedora'; // Nombre de la vendedora según sidebar
-    triggerSuccess();
-  } else {
-    errorMessage.value = 'Credenciales inválidas. Verifique su correo y contraseña.';
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+      errorMessage.value = 'Credenciales inválidas. Verifique su correo y contraseña.';
+      return;
+    }
+
+    errorMessage.value = 'No fue posible iniciar sesión. Verifique que el backend esté encendido.';
   }
 };
 
@@ -149,7 +160,12 @@ const triggerSuccess = () => {
   
   // Animación de bienvenida antes de redirigir
   setTimeout(() => {
-    router.push(session.role.value === 'admin' ? '/dashboard' : '/historial');
+    const redirect = typeof router.currentRoute.value.query.redirect === 'string'
+      ? router.currentRoute.value.query.redirect
+      : session.role.value === 'admin'
+        ? '/dashboard'
+        : '/historial';
+    router.push(redirect);
   }, 2500);
 };
 </script>
