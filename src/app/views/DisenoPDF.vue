@@ -30,6 +30,15 @@
               style="background-color: var(--page-bg); border-color: var(--border-color); color: var(--text-primary);"
             />
           </div>
+          <div class="md:col-span-2">
+            <label class="block text-xs font-bold uppercase mb-1" style="color: var(--text-secondary);">Email de Contacto</label>
+            <input
+              v-model="datosEmpresa.email_contacto"
+              type="text"
+              class="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-1"
+              style="background-color: var(--page-bg); border-color: var(--border-color); color: var(--text-primary);"
+            />
+          </div>
           <div>
             <label class="block text-xs font-bold uppercase mb-1" style="color: var(--text-secondary);">NIT / CIF / RUT</label>
             <input
@@ -148,7 +157,7 @@
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-2">
             <ImageIcon :size="20" style="color: var(--accent);" />
-            <h3 class="font-bold text-lg" style="color: var(--text-primary);">Imágenes de Encabezado</h3>
+            <h3 class="font-bold text-lg" style="color: var(--text-primary);">Imágenes de Logo</h3>
           </div>
           <button
             class="px-4 py-1.5 rounded-full text-xs font-bold uppercase transition-colors hover:bg-opacity-10"
@@ -186,7 +195,7 @@
               class="flex flex-col items-center justify-center gap-2 text-xs text-gray-400 px-4 text-center"
             >
               <ImageIcon :size="28" class="text-gray-300" />
-              <span>Sin imagen de encabezado</span>
+              <span>Sin imagen de logo</span>
               <span class="text-[11px]">Haz clic para cargar una imagen</span>
             </div>
 

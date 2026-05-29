@@ -384,7 +384,8 @@
 
     <PdfPreviewModal 
       :isOpen="isPdfModalOpen" 
-      :cotizacion="currentCotizacionFullData" 
+      :cotizacion="currentCotizacionFullData"
+      :empresa="empresaActual"
       @close="closePdfModal" 
     />
 
@@ -392,11 +393,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Eye, Plus, Trash2, User, Settings, Send } from 'lucide-vue-next';
 import { useCotizaciones, type Cotizacion } from '../state/cotizaciones';
 import PdfPreviewModal from '../components/PdfPreviewModal.vue';
+import { empresaService, type Empresa } from '../services/empresaService';
 
 type Item = {
   id: number;
@@ -428,6 +430,8 @@ const {
 
 // Estado del Modal PDF
 const isPdfModalOpen = ref(false);
+
+const empresaActual = ref<Empresa | null>(null);
 
 const openPdfModal = () => {
   isPdfModalOpen.value = true;
@@ -702,4 +706,10 @@ const handleGuardar = () => {
   cotizacionId.value = savedId;
   router.push('/historial');
 };
+
+const loadEmpresa = async () => {
+  empresaActual.value = await empresaService.getEmpresa();
+};
+
+onMounted(loadEmpresa);
 </script>

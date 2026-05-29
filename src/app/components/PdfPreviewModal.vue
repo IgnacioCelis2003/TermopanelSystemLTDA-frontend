@@ -17,21 +17,91 @@
           
           <div class="p-[10mm]">
             
-            <div class="w-full h-[120px] mb-6 flex items-center justify-center overflow-hidden">
-              <img
-                v-if="empresa?.header_url"
-                :src="empresaService.getEmpresaImagenUrlNoCache('header')"
-                class="w-full h-full object-contain"
-                alt="Encabezado PDF"
-              >
+            <!-- CABECERA PDF -->
+            <div class="w-full mb-2 flex items-start justify-between gap-4">
+              <!-- Logo -->
+              <div class="w-[26%] h-[80px] flex items-center justify-start overflow-hidden -mr-4 mt-2">
+                <img
+                  v-if="empresa?.header_url"
+                  :src="empresaService.getEmpresaImagenUrlNoCache('header')"
+                  class="max-w-full max-h-full object-contain"
+                  alt="Logo empresa"
+                >
 
-              <div
-                v-else
-                class="w-full h-full border-2 border-dashed border-gray-400 bg-gray-50 flex items-center justify-center"
-              >
-                <span class="text-gray-500 font-bold text-lg uppercase tracking-widest">
-                  Sin imagen de encabezado
-                </span>
+                <div
+                  v-else
+                  class="w-full h-full border-2 border-dashed border-gray-300 flex items-center justify-center text-[10px] text-gray-400"
+                >
+                  Sin logo
+                </div>
+              </div>
+
+              <!-- Datos empresa -->
+              <div class="flex-1 leading-tight pt-1">
+                <h2 class="text-[18px] font-bold text-red-600 leading-relaxed">
+                  {{ 'Termoacusticos.cl' }}
+                </h2>
+
+                <p class="text-[10px] uppercase">
+                  FABRICACIÓN E INSTALACIÓN DE VENTANAS DE TERMOPANEL
+                </p>
+
+                <p class="text-[10px]">
+                  <span v-if="empresa?.nombre">{{ empresa.nombre }}</span>
+                  <span v-if="empresa?.rut" class="ml-1">R.U.T.: {{ empresa.rut }}</span>
+                </p>
+
+                <p class="text-[10px]">
+                  {{ 'Casa Matriz y Fábrica' }}
+                </p>
+
+                <p class="text-[10px]">
+                  {{ empresa?.direccion || 'Sin dirección registrada' }}
+                </p>
+
+                <div class="flex items-center gap-2 text-[10px] font-bold whitespace-nowrap">
+                  <span class="flex items-center gap-0.5">
+                    <Phone :size="10" class="text-black -mt-0.5" />
+                    22211 7041
+                  </span>
+
+                  <span
+                    v-if="empresa?.telefono"
+                    class="flex items-center gap-0.5"
+                  >
+                    <MessageCircle :size="10" class="text-green-500 -mt-0.5" />
+                    {{ empresa.telefono }}
+                  </span>
+
+                  <span
+                    v-if="empresa?.email_contacto"
+                    class="flex items-center gap-0.5"
+                  >
+                    {{ empresa.email_contacto }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Datos cotización -->
+              <div class="w-[25%] text-[10px]">
+                <div class="bg-orange-500 text-white text-center font-bold rounded-full py-1 mb-1 uppercase">
+                  Somos Fabricantes
+                </div>
+
+                <div class="border border-blue-800 rounded px-2 py-1 mb-1 flex justify-between font-bold">
+                  <span>Presupuesto:</span>
+                  <span>{{ cotizacion.numero }}</span>
+                </div>
+
+                <div class="px-2 py-0.5">
+                  <span class="font-bold">Sr(a):</span>
+                  <span class="ml-1 font-bold uppercase">{{ cotizacion.cliente }}</span>
+                </div>
+
+                <div class="px-2 py-0.5">
+                  <span class="font-bold">Fono:</span>
+                  <span class="ml-1 font-bold">{{ cotizacion.telefono }}</span>
+                </div>
               </div>
             </div>
 
@@ -164,7 +234,7 @@
 
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue';
-import { Printer } from 'lucide-vue-next';
+import { Printer, Phone, MessageCircle } from 'lucide-vue-next';
 import type { Cotizacion, Propuesta } from '../state/cotizaciones';
 import type { Empresa } from '../services/empresaService';
 import { empresaService } from '../services/empresaService';
