@@ -17,13 +17,37 @@
           
           <div class="p-[10mm]">
             
-            <div class="w-full h-[120px] border-2 border-dashed border-gray-400 bg-gray-50 flex items-center justify-center mb-6">
-              <span class="text-gray-500 font-bold text-lg uppercase tracking-widest">Acá va la imagen (Encabezado)</span>
+            <div class="w-full h-[120px] mb-6 flex items-center justify-center overflow-hidden">
+              <img
+                v-if="empresa?.header_url"
+                :src="empresaService.getEmpresaImagenUrlNoCache('header')"
+                class="w-full h-full object-contain"
+                alt="Encabezado PDF"
+              >
+
+              <div
+                v-else
+                class="w-full h-full border-2 border-dashed border-gray-400 bg-gray-50 flex items-center justify-center"
+              >
+                <span class="text-gray-500 font-bold text-lg uppercase tracking-widest">
+                  Sin imagen de encabezado
+                </span>
+              </div>
             </div>
 
             <div class="flex gap-2 mb-6 text-[11px]">
               <div class="border border-gray-400 p-3 w-[45%] rounded-md leading-tight">
-                A continuación entregamos propuesta(s) para su proyecto de cambio de <span class="font-bold">Ventanas de Termopanel</span> para su hogar, en <span class="text-blue-600 font-bold">Termoacusticos.cl</span> nos preocupamos de tener la mejor <span class="text-blue-600 font-bold">Relación Precio / Calidad del Mercado.</span>
+                <span v-if="empresa?.texto_presentacion">
+                  {{ empresa.texto_presentacion }}
+                </span>
+
+                <span v-else>
+                  A continuación entregamos propuesta(s) para su proyecto de cambio de
+                  <span class="font-bold">Ventanas de Termopanel</span> para su hogar,
+                  en <span class="text-blue-600 font-bold">Termoacusticos.cl</span>
+                  nos preocupamos de tener la mejor
+                  <span class="text-blue-600 font-bold">Relación Precio / Calidad del Mercado.</span>
+                </span>
               </div>
               <div class="border border-gray-400 p-2 flex-1 rounded-md flex justify-around items-end pb-1">
                 <div class="flex flex-col items-center gap-1"><div class="w-8 h-10 border-4 border-orange-700 bg-blue-100"></div><span class="text-[8px] font-bold uppercase">Fija</span></div>
@@ -113,8 +137,22 @@
               </div>
             </div>
 
-            <div class="w-full h-[60px] border-2 border-dashed border-gray-400 bg-gray-50 flex items-center justify-center mt-8">
-              <span class="text-gray-500 font-bold text-sm uppercase tracking-widest">Acá va la imagen (Marcas / Pie de página)</span>
+            <div class="w-full h-[70px] mt-8 flex items-center justify-center overflow-hidden">
+              <img
+                v-if="empresa?.footer_url"
+                :src="empresaService.getEmpresaImagenUrlNoCache('footer')"
+                class="w-full h-full object-contain"
+                alt="Pie de página PDF"
+              >
+
+              <div
+                v-else
+                class="w-full h-full border-2 border-dashed border-gray-400 bg-gray-50 flex items-center justify-center"
+              >
+                <span class="text-gray-500 font-bold text-sm uppercase tracking-widest">
+                  Sin imagen de pie de página
+                </span>
+              </div>
             </div>
 
           </div>
@@ -128,10 +166,13 @@
 import { defineProps, defineEmits } from 'vue';
 import { Printer } from 'lucide-vue-next';
 import type { Cotizacion, Propuesta } from '../state/cotizaciones';
+import type { Empresa } from '../services/empresaService';
+import { empresaService } from '../services/empresaService';
 
 const props = defineProps<{
   isOpen: boolean;
   cotizacion: Cotizacion;
+  empresa: Empresa | null;
 }>();
 
 const emit = defineEmits<{

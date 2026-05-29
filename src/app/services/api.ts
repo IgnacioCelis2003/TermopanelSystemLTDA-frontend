@@ -55,7 +55,12 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   const token = getStoredToken();
 
   const requestHeaders = new Headers(headers);
-  requestHeaders.set('Content-Type', 'application/json');
+
+  const isFormData = rest.body instanceof FormData;
+
+  if (!isFormData) {
+    requestHeaders.set('Content-Type', 'application/json');
+  }
 
   if (auth && token) {
     requestHeaders.set('Authorization', `Bearer ${token}`);
