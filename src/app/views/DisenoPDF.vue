@@ -67,6 +67,18 @@
       </div>
     </div>
 
+    <div class="flex justify-end mb-6">
+      <button
+        class="flex items-center gap-2 px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider text-white transition-opacity hover:opacity-90 shadow-md disabled:opacity-50"
+        style="background-color: #925B16;"
+        :disabled="saving"
+        @click="saveChanges"
+      >
+        <Save :size="18" />
+        <span>{{ saving ? 'Guardando empresa...' : 'Guardar datos empresa' }}</span>
+      </button>
+    </div>
+
     <div class="p-6 rounded-xl border mb-6" style="background-color: var(--surface); border-color: var(--border-color);">
       <div class="flex items-center gap-2 mb-6">
         <ListTree :size="20" style="color: var(--accent);" />
@@ -88,18 +100,22 @@
           
           <ul class="space-y-2 mb-3">
             <li
-              v-for="(item, index) in list.items"
-              :key="index"
+              v-for="item in list.items"
+              :key="item.id"
               class="flex items-center gap-3 px-3 py-2 rounded border text-sm group"
               style="background-color: var(--page-bg); border-color: var(--border-color);"
             >
               <div class="w-2 h-2 rounded-full" style="background-color: var(--text-secondary);"></div>
-              <span class="flex-1 truncate" style="color: var(--text-primary);">{{ item }}</span>
+
+              <span class="flex-1 truncate" style="color: var(--text-primary);">
+                {{ item.label }}
+              </span>
+
               <button
                 class="opacity-0 group-hover:opacity-100 transition-opacity"
                 style="color: var(--error);"
-                @click="removeItem(list.key, index)"
                 title="Eliminar"
+                @click="removeItem(list.key, item)"
               >
                 <X :size="14" />
               </button>
@@ -134,20 +150,52 @@
             <ImageIcon :size="20" style="color: var(--accent);" />
             <h3 class="font-bold text-lg" style="color: var(--text-primary);">Imágenes de Encabezado</h3>
           </div>
-          <button class="px-4 py-1.5 rounded-full text-xs font-bold uppercase transition-colors hover:bg-opacity-10" style="color: var(--accent); background-color: var(--accent-light, #fef3c7);">
+          <button
+            class="px-4 py-1.5 rounded-full text-xs font-bold uppercase transition-colors hover:bg-opacity-10"
+            style="color: var(--accent); background-color: var(--accent-light, #fef3c7);"
+            @click="headerInput?.click()"
+          >
             Cargar Nueva
           </button>
+
+          <input
+            ref="headerInput"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            class="hidden"
+            @change="uploadEmpresaImagen('header', $event)"
+          >
         </div>
         
         <div class="flex gap-4 overflow-x-auto pb-2">
-          <div class="relative min-w-[120px] h-[80px] rounded border-2 border-orange-500 overflow-hidden cursor-pointer">
-            <img src="https://via.placeholder.com/150/EEEEEE/999999?text=Encabezado+1" class="w-full h-full object-cover" alt="H1" />
-            <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-              <CheckCircle2 :size="24" class="text-white drop-shadow-md" />
+          <div
+            class="relative min-w-[220px] h-[100px] rounded border-2 overflow-hidden cursor-pointer bg-gray-50 flex items-center justify-center"
+            :class="headerImageUrl && !headerImageError ? 'border-orange-500' : 'border-dashed border-gray-300'"
+            @click="headerInput?.click()"
+          >
+            <img
+              v-if="headerImageUrl && !headerImageError"
+              :src="headerImageUrl"
+              class="w-full h-full object-contain bg-white"
+              alt="Header empresa"
+              @error="headerImageError = true"
+            >
+
+            <div
+              v-else
+              class="flex flex-col items-center justify-center gap-2 text-xs text-gray-400 px-4 text-center"
+            >
+              <ImageIcon :size="28" class="text-gray-300" />
+              <span>Sin imagen de encabezado</span>
+              <span class="text-[11px]">Haz clic para cargar una imagen</span>
             </div>
-          </div>
-          <div class="relative min-w-[120px] h-[80px] rounded border border-gray-300 overflow-hidden cursor-pointer opacity-70 hover:opacity-100">
-            <img src="https://via.placeholder.com/150/DDDDDD/666666?text=Encabezado+2" class="w-full h-full object-cover" alt="H2" />
+
+            <div
+              v-if="headerImageUrl && !headerImageError"
+              class="absolute top-1 right-1 rounded-full bg-white shadow p-0.5"
+            >
+              <CheckCircle2 :size="18" class="text-orange-600" />
+            </div>
           </div>
         </div>
       </div>
@@ -158,20 +206,52 @@
             <LayoutTemplate :size="20" style="color: var(--accent);" />
             <h3 class="font-bold text-lg" style="color: var(--text-primary);">Imágenes de Pie de Página</h3>
           </div>
-          <button class="px-4 py-1.5 rounded-full text-xs font-bold uppercase transition-colors hover:bg-opacity-10" style="color: var(--accent); background-color: var(--accent-light, #fef3c7);">
+          <button
+            class="px-4 py-1.5 rounded-full text-xs font-bold uppercase transition-colors hover:bg-opacity-10"
+            style="color: var(--accent); background-color: var(--accent-light, #fef3c7);"
+            @click="footerInput?.click()"
+          >
             Cargar Nueva
           </button>
+
+          <input
+            ref="footerInput"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            class="hidden"
+            @change="uploadEmpresaImagen('footer', $event)"
+          >
         </div>
         
-        <div class="flex gap-4 overflow-x-auto pb-2 items-center h-[80px]">
-          <div class="px-4 py-2 border rounded border-gray-200 text-xs text-gray-400 font-medium whitespace-nowrap cursor-pointer">
-            Logos Certificaciones ISO
-          </div>
-          <div class="px-4 py-2 border-2 border-orange-500 rounded text-xs font-bold text-orange-700 whitespace-nowrap cursor-pointer">
-            Marcas Aliadas
-          </div>
-          <div class="px-4 py-2 border rounded border-gray-200 bg-gray-50 text-xs text-gray-400 font-medium whitespace-nowrap cursor-pointer">
-            Iconografía Seguridad
+        <div class="flex gap-4 overflow-x-auto pb-2 items-center h-[110px]">
+          <div
+            class="relative min-w-[220px] h-[100px] rounded border-2 overflow-hidden cursor-pointer bg-gray-50 flex items-center justify-center"
+            :class="footerImageUrl && !footerImageError ? 'border-orange-500' : 'border-dashed border-gray-300'"
+            @click="footerInput?.click()"
+          >
+            <img
+              v-if="footerImageUrl && !footerImageError"
+              :src="footerImageUrl"
+              class="w-full h-full object-contain bg-white"
+              alt="Footer empresa"
+              @error="footerImageError = true"
+            >
+
+            <div
+              v-else
+              class="flex flex-col items-center justify-center gap-2 text-xs text-gray-400 px-4 text-center"
+            >
+              <ImageIcon :size="28" class="text-gray-300" />
+              <span>Sin imagen de pie de página</span>
+              <span class="text-[11px]">Haz clic para cargar una imagen</span>
+            </div>
+
+            <div
+              v-if="footerImageUrl && !footerImageError"
+              class="absolute top-1 right-1 rounded-full bg-white shadow p-0.5"
+            >
+              <CheckCircle2 :size="18" class="text-orange-600" />
+            </div>
           </div>
         </div>
       </div>
@@ -179,13 +259,15 @@
 
     <div class="fixed bottom-0 left-0 right-0 z-40 border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] p-4 flex items-center justify-between transition-colors bg-white" style="border-color: var(--border-color);">
       <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
-        
+        <!--
         <div class="flex items-center gap-2 text-xs italic text-gray-400">
           <Clock :size="14" />
           <span>Última modificación: Hace 14 minutos por Admin</span>
         </div>
+        -->
 
-        <div class="flex items-center gap-4">
+        <!-- Quitar justify-end w-full al volver a poner la seccion anterior de ultima modificación-->
+        <div class="flex items-center gap-4 justify-end w-full">
           <button
             @click="openPdfModal"
             class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider transition-colors hover:bg-gray-50"
@@ -193,41 +275,52 @@
           >
             Previsualizar PDF
           </button>
-          <button
-            class="flex items-center gap-2 px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider text-white transition-opacity hover:opacity-90 shadow-md"
-            style="background-color: #925B16;" 
-          >
-            <Save :size="18" />
-            <span>Guardar Cambios</span>
-          </button>
         </div>
       </div>
     </div>
 
     <PdfPreviewModal 
       :isOpen="isPdfModalOpen" 
-      :cotizacion="dummyCotizacion" 
+      :cotizacion="dummyCotizacion"
+      :empresa="empresaActual"
       @close="closePdfModal" 
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { 
-  Save, 
-  Building2, 
-  AlignLeft, 
-  ListTree, 
-  PlusCircle, 
-  X, 
-  Check, 
-  Image as ImageIcon, 
-  LayoutTemplate, 
-  CheckCircle2, 
-  Clock 
+import { computed, onMounted, ref } from 'vue';
+import {
+  Save,
+  Building2,
+  AlignLeft,
+  ListTree,
+  PlusCircle,
+  X,
+  Check,
+  Image as ImageIcon,
+  LayoutTemplate,
+  CheckCircle2,
+  Clock,
 } from 'lucide-vue-next';
+
 import PdfPreviewModal from '../components/PdfPreviewModal.vue';
+
+import { empresaService, type EmpresaImagenTipo } from '../services/empresaService';
+import type { Empresa } from '../services/empresaService';
+import { colorService } from '../services/colorService';
+import { tipoPropuestaService } from '../services/tipoPropuestaService';
+import { tipoTermopanelService } from '../services/tipoTermopanelService';
+
+type ListaKey = 'materiales' | 'cristales' | 'colores';
+
+type ListaItem = {
+  id: number;
+  label: string;
+};
+
+const loading = ref(false);
+const saving = ref(false);
 
 // Estado del Modal
 const isPdfModalOpen = ref(false);
@@ -240,8 +333,218 @@ const closePdfModal = () => {
   isPdfModalOpen.value = false;
 };
 
-// Objeto falso de cotización para que el modal renderice contenido válido al abrirse
-const dummyCotizacion = ref({
+const empresaActual = ref<Empresa | null>(null);
+
+// Datos empresa
+const datosEmpresa = ref({
+  rut: '',
+  nombre: '',
+  direccion: '',
+  telefono: '',
+  email_contacto: '',
+  nombre_contacto: '',
+  descuento_aluminio_estandar: 0,
+  factor_iva_perfil: 0,
+  empresa_ins: 0,
+});
+
+const textoPresentacion = ref('');
+
+// Listas maestras
+const materiales = ref<ListaItem[]>([]);
+const cristales = ref<ListaItem[]>([]);
+const colores = ref<ListaItem[]>([]);
+
+const nuevoItem = ref<{
+  list: '' | ListaKey;
+  value: string;
+}>({
+  list: '',
+  value: '',
+});
+
+const listas = computed(() => [
+  { title: 'Materiales', items: materiales.value, key: 'materiales' as const },
+  { title: 'Cristales', items: cristales.value, key: 'cristales' as const },
+  { title: 'Colores / Acabados', items: colores.value, key: 'colores' as const },
+]);
+
+// Imágenes
+const headerInput = ref<HTMLInputElement | null>(null);
+const footerInput = ref<HTMLInputElement | null>(null);
+
+const headerImageUrl = ref('');
+const footerImageUrl = ref('');
+
+const headerImageError = ref(false);
+const footerImageError = ref(false);
+
+const refreshImageUrls = () => {
+  headerImageError.value = false;
+  footerImageError.value = false;
+
+  headerImageUrl.value = empresaService.getEmpresaImagenUrlNoCache('header');
+  footerImageUrl.value = empresaService.getEmpresaImagenUrlNoCache('footer');
+};
+
+const loadEmpresa = async () => {
+  const empresa = await empresaService.getEmpresa();
+
+  empresaActual.value = empresa;
+
+  datosEmpresa.value = {
+    rut: empresa.rut ?? '',
+    nombre: empresa.nombre ?? '',
+    direccion: empresa.direccion ?? '',
+    telefono: empresa.telefono ?? '',
+    email_contacto: empresa.email_contacto ?? '',
+    nombre_contacto: empresa.nombre_contacto ?? '',
+    descuento_aluminio_estandar: empresa.descuento_aluminio_estandar ?? 0,
+    factor_iva_perfil: empresa.factor_iva_perfil ?? 0,
+    empresa_ins: empresa.empresa_ins ?? 0,
+  };
+
+  textoPresentacion.value = empresa.texto_presentacion ?? '';
+};
+
+const loadListasMaestras = async () => {
+  const [tiposPropuesta, tiposTermopanel, listaColores] = await Promise.all([
+    tipoPropuestaService.getTiposPropuesta(),
+    tipoTermopanelService.getTiposTermopanel(),
+    colorService.getColors(),
+  ]);
+
+  materiales.value = tiposPropuesta.map((item) => ({
+    id: item.id,
+    label: item.material,
+  }));
+
+  cristales.value = tiposTermopanel.map((item) => ({
+    id: item.id,
+    label: item.nombre,
+  }));
+
+  colores.value = listaColores.map((item) => ({
+    id: item.id,
+    label: item.nombre,
+  }));
+};
+
+const loadData = async () => {
+  loading.value = true;
+
+  try {
+    await Promise.all([
+      loadEmpresa(),
+      loadListasMaestras(),
+    ]);
+
+    refreshImageUrls();
+  } finally {
+    loading.value = false;
+  }
+};
+
+const addItem = async (list: ListaKey) => {
+  const value = nuevoItem.value.value.trim();
+
+  if (nuevoItem.value.list !== list || !value) {
+    return;
+  }
+
+  if (list === 'materiales') {
+    await tipoPropuestaService.createTipoPropuesta({
+      material: value,
+    });
+  }
+
+  if (list === 'cristales') {
+    await tipoTermopanelService.createTipoTermopanel({
+      nombre: value,
+      factor: 1,
+      libre: false,
+      especial: false,
+    });
+  }
+
+  if (list === 'colores') {
+    await colorService.createColor({
+      nombre: value,
+    });
+  }
+
+  nuevoItem.value = { list: '', value: '' };
+  await loadListasMaestras();
+};
+
+const removeItem = async (list: ListaKey, item: ListaItem) => {
+  if (!confirm(`¿Eliminar "${item.label}"?`)) {
+    return;
+  }
+
+  if (list === 'materiales') {
+    await tipoPropuestaService.deleteTipoPropuesta(item.id);
+  }
+
+  if (list === 'cristales') {
+    await tipoTermopanelService.deleteTipoTermopanel(item.id);
+  }
+
+  if (list === 'colores') {
+    await colorService.deleteColor(item.id);
+  }
+
+  await loadListasMaestras();
+};
+
+const saveChanges = async () => {
+  saving.value = true;
+
+  try {
+    await empresaService.updateEmpresa({
+      rut: datosEmpresa.value.rut,
+      nombre: datosEmpresa.value.nombre,
+      direccion: datosEmpresa.value.direccion,
+      telefono: datosEmpresa.value.telefono,
+      email_contacto: datosEmpresa.value.email_contacto,
+      nombre_contacto: datosEmpresa.value.nombre_contacto,
+      texto_presentacion: textoPresentacion.value,
+      descuento_aluminio_estandar: datosEmpresa.value.descuento_aluminio_estandar,
+      factor_iva_perfil: datosEmpresa.value.factor_iva_perfil,
+      empresa_ins: datosEmpresa.value.empresa_ins,
+    });
+
+    await loadEmpresa();
+  } finally {
+    saving.value = false;
+  }
+};
+
+const uploadEmpresaImagen = async (
+  tipo: EmpresaImagenTipo,
+  event: Event,
+) => {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+
+  if (!file) {
+    return;
+  }
+
+  try {
+    await empresaService.uploadEmpresaImagen(tipo, file);
+
+    input.value = '';
+    refreshImageUrls();
+    await loadEmpresa();
+  } catch (error) {
+    console.error(error);
+    alert('Error al subir la imagen');
+  }
+};
+
+// Objeto falso de cotización para previsualización
+const dummyCotizacion = computed(() => ({
   id: 0,
   numero: '0000',
   fecha: '2026-04-29',
@@ -258,79 +561,24 @@ const dummyCotizacion = ref({
     {
       id: 1,
       titulo: 'Propuesta de Prueba',
-      calidadMaterial: 'ALTA CALIDAD EN PCV EUROPEO®',
+      calidadMaterial: materiales.value[0]?.label ?? 'ALTA CALIDAD EN PVC EUROPEO®',
       descuento: 0,
       notas: 'Nota generada automáticamente para la previsualización.',
       items: [
-        { id: 1, tipo: 'Paño Fijo', cristal: 'DVH 4/12/4', color: 'Blanco', ancho: 1200, alto: 1500, cantidad: 2, valorUnitario: 145000 }
-      ]
-    }
-  ]
-});
+        {
+          id: 1,
+          tipo: 'Paño Fijo',
+          cristal: cristales.value[0]?.label ?? 'TERMOPANEL 20 mm (5+10+5) INCOLORO',
+          color: colores.value[0]?.label ?? 'BLANCO',
+          ancho: 1200,
+          alto: 1500,
+          cantidad: 2,
+          valorUnitario: 145000,
+        },
+      ],
+    },
+  ],
+}));
 
-// Datos de la vista
-const datosEmpresa = ref({
-  nombre: 'Aperture Industrial Solutions',
-  rut: 'B-12345678',
-  direccion: 'Calle de la Forja 45, Polígono Industrial',
-  telefono: '+34 912 345 678',
-  correo: 'contacto@aperture.com',
-  web: 'www.aperture.com',
-});
-
-const textoPresentacion = ref(
-  'A CONTINUACIÓN ENTREGAMOS PROPUESTAS PARA SU PROYECTO DE CAMBIO DE VENTANAS DE TERMOPANEL PARA SU HOGAR. NOS PREOCUPAMOS DE TENER LA MEJOR RELACION PRECIO / CALIDAD DEL MERCADO.'
-);
-
-const materiales = ref([
-  'Aluminio Extruido 6063',
-  'Acero Inoxidable AISI 304',
-  'Madera de Roble Tratada',
-]);
-
-const cristales = ref([
-  'Doble Acristalamiento 4/12/4',
-  'Laminado de Seguridad 6+6',
-  'Bajo Emisivo Guardián Sun',
-]);
-
-const colores = ref([
-  'Gris Antracita RAL 7016',
-  'Blanco Satinado RAL 9010',
-  'Efecto Madera Nogal',
-]);
-
-const nuevoItem = ref({ list: '', value: '' });
-
-const listas = computed(() => [
-  { title: 'Materiales', items: materiales.value, key: 'materiales' },
-  { title: 'Cristales', items: cristales.value, key: 'cristales' },
-  { title: 'Colores / Acabados', items: colores.value, key: 'colores' },
-]);
-
-const addItem = (list: string) => {
-  if (nuevoItem.value.list !== list || !nuevoItem.value.value.trim()) {
-    return;
-  }
-
-  if (list === 'materiales') {
-    materiales.value.push(nuevoItem.value.value);
-  } else if (list === 'cristales') {
-    cristales.value.push(nuevoItem.value.value);
-  } else if (list === 'colores') {
-    colores.value.push(nuevoItem.value.value);
-  }
-
-  nuevoItem.value = { list: '', value: '' };
-};
-
-const removeItem = (list: string, index: number) => {
-  if (list === 'materiales') {
-    materiales.value.splice(index, 1);
-  } else if (list === 'cristales') {
-    cristales.value.splice(index, 1);
-  } else if (list === 'colores') {
-    colores.value.splice(index, 1);
-  }
-};
+onMounted(loadData);
 </script>
